@@ -74,7 +74,7 @@ void lock(int victim) {
     // Mas primeiro dá a chance para a outra thread de também realizar a operação
     turn = 1-victim;
     
-    // Fica em espera até que seja a sua vez ou que a thread y não queira entrar;
+    // Fica em espera até que seja a sua vez e que a thread y não queira entrar;
     while (flag[1-victim]==1 && turn==1-victim) ;
 }
 
