@@ -25,20 +25,20 @@ pthread_mutex_t serv = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t foodReady = PTHREAD_MUTEX_INITIALIZER;
 
 void *Cooking(){
-    int light;
+    int light; //controle if the mutex will be available or not
     while (1) {
         pthread_mutex_lock(&row);
         printf("Mutex row locked\n");
-        if (initialPortions > 0) {
+        if (initialPortions > 0) { //a loop that will run until it have no more food
             printf("Canibal is eating before else\n Portion number : %d\n", initialPortions);
-            initialPortions --;
-            sleep(eatTime);
+            initialPortions --; //decrease the amount every time a Canibal eats 
+            sleep(eatTime); 
         }else{
             printf("Call the cook\n");
-            pthread_mutex_lock(&serv);
+            pthread_mutex_lock(&serv); 
             pthread_mutex_unlock(&cook);
             pthread_mutex_lock(&foodReady);
-            printf("Cnibal eating after else\n");
+            printf("Canibal eating after else\n");
             initialPortions--;
             pthread_mutex_unlock(&serv);
         }
@@ -50,10 +50,10 @@ void *Cooking(){
 
 void *Cook(){
     while (1) {
-        pthread_mutex_lock(&cook);
+        pthread_mutex_lock(&cook); //It's time for the mutex of the cook 
         printf("Calling the Cook, he is cooking....\n");
-        initialPortions = portions;
-        sleep(cookTime);
+        initialPortions = portions; //set the initial portions to be the same as 10 (always)
+        sleep(cookTime); //make it to sleep for a short time until called again
         printf("Cook is making food\n");
         fflush(stdout);
         pthread_mutex_unlock(&foodReady);
@@ -103,27 +103,27 @@ int main(){
     int rc;
     pthread_t canibal[numCanibals];
     pthread_t cook;
-    lock_init();
+    lock_init(); //2º exercício
     pthread_mutex_lock(&cook);
     pthread_mutex_unlock(&serv);
     pthread_mutex_unlock(&row);
     pthread_mutex_lock(&foodReady);
     for (int i = 0; i < numCanibals; i++) {
-        rc = pthread_create(&canibal[i], NULL, Cooking, NULL);
-        pthread_create(&canibal[i],NULL,func,(void*)0);
+        rc = pthread_create(&canibal[i], NULL, Cooking, NULL); //1º exercício
+        pthread_create(&canibal[i],NULL,func,(void*)0); //2º exercício
         printf("Creating canibal %d\n", i);
         if(rc){
             printf("Error creating Canibal Thread : %d\n", i);
         }
     }
-    rc = pthread_create(&cook, NULL, Cook, NULL);
-    pthread_create(&cook,NULL,func, (void*)1);
+    rc = pthread_create(&cook, NULL, Cook, NULL); //1º exercício
+    pthread_create(&cook,NULL,func, (void*)1); //2º exercício
     printf("Hiring cook\n");
     if(rc){
         printf("Error creating Canibal Thread\n");
     }
     pthread_join(cook, NULL);
 
-    printf("Actual Count: %d | Expected Count: %d\n", res, MAX*2);
+    printf("Actual Count: %d | Expected Count: %d\n", res, MAX*2); //2º exercício
     return 0;
 }
