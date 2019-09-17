@@ -61,26 +61,32 @@ void *Cook(){
 }
 
 int main(){
-    int rc;
+    int ;
     pthread_t canibal[numCanibals];
     pthread_t cook;
+    //lock_init(); 
     pthread_mutex_lock(&cook);
     pthread_mutex_unlock(&serv);
     pthread_mutex_unlock(&row);
     pthread_mutex_lock(&foodReady);
     for (int i = 0; i < numCanibals; i++) {
         rc = pthread_create(&canibal[i], NULL, Cooking, NULL);
+        //pthread_create(&canibal[i],NULL,func,(void*)0);
         printf("Creating canibal %d\n", i);
         if(rc){
             printf("Error creating Canibal Thread : %d\n", i);
         }
     }
     rc = pthread_create(&cook, NULL, Cook, NULL);
+    //pthread_create(&cook,NULL,func, (void*)1);
     printf("Hiring cook\n");
     if(rc){
         printf("Error creating Canibal Thread\n");
     }
     pthread_join(cook, NULL);
+
+    //printf("Actual Count: %d | Expected Count: %d\n", ans, MAX*2); 
+    //return 0; 
 }
 
 void lock_init() {
