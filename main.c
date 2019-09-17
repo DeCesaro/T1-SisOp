@@ -64,7 +64,7 @@ int main(){
     int ;
     pthread_t canibal[numCanibals];
     pthread_t cook;
-    //lock_init(); 
+    //lock_init();
     pthread_mutex_lock(&cook);
     pthread_mutex_unlock(&serv);
     pthread_mutex_unlock(&row);
@@ -85,7 +85,7 @@ int main(){
     }
     pthread_join(cook, NULL);
 
-    //printf("Actual Count: %d | Expected Count: %d\n", ans, MAX*2); 
+    //printf("Actual Count: %d | Expected Count: %d\n", res, MAX*2); 
     //return 0; 
 }
 
