@@ -60,35 +60,6 @@ void *Cook(){
     }
 }
 
-int main(){
-    int ;
-    pthread_t canibal[numCanibals];
-    pthread_t cook;
-    //lock_init();
-    pthread_mutex_lock(&cook);
-    pthread_mutex_unlock(&serv);
-    pthread_mutex_unlock(&row);
-    pthread_mutex_lock(&foodReady);
-    for (int i = 0; i < numCanibals; i++) {
-        rc = pthread_create(&canibal[i], NULL, Cooking, NULL);
-        //pthread_create(&canibal[i],NULL,func,(void*)0);
-        printf("Creating canibal %d\n", i);
-        if(rc){
-            printf("Error creating Canibal Thread : %d\n", i);
-        }
-    }
-    rc = pthread_create(&cook, NULL, Cook, NULL);
-    //pthread_create(&cook,NULL,func, (void*)1);
-    printf("Hiring cook\n");
-    if(rc){
-        printf("Error creating Canibal Thread\n");
-    }
-    pthread_join(cook, NULL);
-
-    //printf("Actual Count: %d | Expected Count: %d\n", res, MAX*2); 
-    //return 0; 
-}
-
 void lock_init() {
     // Inicializa o lock resetando as duas threads e indicando o turno para uma delas
     flag[0] = flag[1] = 0;
@@ -99,10 +70,10 @@ void lock_init() {
 void lock(int victim) {
     // Seta em 1 para dizer que ele quer "adquirir"
     flag[victim] = 1;
-
+    
     // Mas primeiro dá a chance para a outra thread de também realizar a operação
     turn = 1-victim;
-
+    
     // Fica em espera até que seja a sua vez ou que a thread y não queira entrar;
     while (flag[1-victim]==1 && turn==1-victim) ;
 }
@@ -117,13 +88,42 @@ void* func(void *s)
     int i = 0;
     int victim = (int *)s;
     printf("Thread Entered: %d\n", victim);
-
+    
     lock(victim);
-
-   // Sessão crítica (Só uma das threads irá entrar aqui)
+    
+    // Sessão crítica (Só uma das threads irá entrar aqui)
     for (i=0; i<MAX; i++)
         res++;
-
+    
     unlock(victim);
 }
 
+
+int main(){
+    int rc;
+    pthread_t canibal[numCanibals];
+    pthread_t cook;
+    lock_init();
+    pthread_mutex_lock(&cook);
+    pthread_mutex_unlock(&serv);
+    pthread_mutex_unlock(&row);
+    pthread_mutex_lock(&foodReady);
+    for (int i = 0; i < numCanibals; i++) {
+        rc = pthread_create(&canibal[i], NULL, Cooking, NULL);
+        pthread_create(&canibal[i],NULL,func,(void*)0);
+        printf("Creating canibal %d\n", i);
+        if(rc){
+            printf("Error creating Canibal Thread : %d\n", i);
+        }
+    }
+    rc = pthread_create(&cook, NULL, Cook, NULL);
+    pthread_create(&cook,NULL,func, (void*)1);
+    printf("Hiring cook\n");
+    if(rc){
+        printf("Error creating Canibal Thread\n");
+    }
+    pthread_join(cook, NULL);
+
+    printf("Actual Count: %d | Expected Count: %d\n", res, MAX*2);
+    return 0;
+}
