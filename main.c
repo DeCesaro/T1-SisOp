@@ -1,7 +1,7 @@
 //Guilherme Dall'Agnol Deconto
 //Gustavo Possebon Machado
 //Bernardo de Cesaro
-//Pontifícia Universidade católica do Rio Grande do Sul
+//Pontifícia Universidade Católica do Rio Grande do Sul
 //Sistemas Operacionais
 
 #include <pthread.h>
@@ -14,6 +14,10 @@
 #define cookTime 5 // time for the food to be ready
 #define eatTime 1 // time it takes for a cannibal to eat
 int initialPortions = 10; // ammount of initial portions
+int flag[2]; 
+int turn; 
+const int MAX = 1e9; 
+int res = 0; 
 
 pthread_mutex_t cook = PTHREAD_MUTEX_INITIALIZER;
 pthread_mutex_t row =  PTHREAD_MUTEX_INITIALIZER;
@@ -78,3 +82,42 @@ int main(){
     }
     pthread_join(cook, NULL);
 }
+
+void lock_init() {
+    // Inicializa o lock resetando as duas threads e indicando o turno para uma delas
+    flag[0] = flag[1] = 0;
+    turn = 0;
+}
+
+// Executa antes de entrar na sessão crítica
+void lock(int victim) {
+    // Seta em 1 para dizer que ele quer "adquirir"
+    flag[victim] = 1;
+
+    // Mas primeiro dá a chance para a outra thread de também realizar a operação
+    turn = 1-victim;
+
+    // Fica em espera até que seja a sua vez ou que a thread y não queira entrar;
+    while (flag[1-victim]==1 && turn==1-victim) ;
+}
+
+// Executa depois de sair da sessão crítica
+void unlock(int victim){
+    flag[victim] = 0;
+}
+
+void* func(void *s)
+{
+    int i = 0;
+    int victim = (int *)s;
+    printf("Thread Entered: %d\n", victim);
+
+    lock(victim);
+
+   // Sessão crítica (Só uma das threads irá entrar aqui)
+    for (i=0; i<MAX; i++)
+        res++;
+
+    unlock(victim);
+}
+
